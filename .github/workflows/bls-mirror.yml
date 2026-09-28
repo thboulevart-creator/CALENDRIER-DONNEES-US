@@ -11,8 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Copier le flux BLS
+        env:
+          CONTACT: ${{ secrets.BLS_CONTACT }}
         run: |
-          curl -sSf -A "personal-macro-calendar thboulevart-creator@users.noreply.github.com" -o new.ics https://www.bls.gov/schedule/news_release/bls.ics
+          curl -sSf -A "personal-macro-calendar $CONTACT" -H "Accept: text/calendar,*/*" -o new.ics https://www.bls.gov/schedule/news_release/bls.ics
           grep -q "BEGIN:VCALENDAR" new.ics
           mv new.ics bls.ics
           date -u +%Y-%m-%dT%H:%M:%SZ > last_ok.txt
