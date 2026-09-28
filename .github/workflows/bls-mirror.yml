@@ -1,1 +1,23 @@
-bls-mirror.yml
+name: bls-mirror
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copier le flux BLS
+        run: |
+          curl -sSf -A "personal-macro-calendar thboulevart-creator@users.noreply.github.com" -o new.ics https://www.bls.gov/schedule/news_release/bls.ics
+          grep -q "BEGIN:VCALENDAR" new.ics
+          mv new.ics bls.ics
+          date -u +%Y-%m-%dT%H:%M:%SZ > last_ok.txt
+          git config user.name "bls-mirror"
+          git config user.email "bls-mirror@users.noreply.github.com"
+          git add bls.ics last_ok.txt
+          git commit -m "BLS mirror" || exit 0
+          git push
